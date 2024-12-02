@@ -13,6 +13,7 @@ func (a Aoc) Execute(data []byte, part, day int) (any, error) {
 
 	days := []utils.Challenge{
 		Day1{},
+		Day2{},
 	}
 
 	if part == 1 {

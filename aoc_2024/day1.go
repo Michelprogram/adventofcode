@@ -19,7 +19,7 @@ func abs(x int) int {
 	return x
 }
 
-func parseNumbers(data []byte) ([]int, []int, error) {
+func (d Day1) ParseInputs(data []byte) ([]int, []int, error) {
 
 	lines := bytes.Split(data, []byte("\n"))
 
@@ -62,7 +62,7 @@ func (d Day1) Part1(data []byte) (any, error) {
 
 	var res int
 
-	l1, l2, err := parseNumbers(data)
+	l1, l2, err := d.ParseInputs(data)
 
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (d Day1) Part2(data []byte) (any, error) {
 
 	hash := make(map[int]int)
 
-	l1, l2, err := parseNumbers(data)
+	l1, l2, err := d.ParseInputs(data)
 
 	if err != nil {
 		return nil, err

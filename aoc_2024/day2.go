@@ -2,8 +2,9 @@ package aoc2024
 
 import (
 	"bytes"
-	"github.com/michelprogram/adventofcode/utils"
 	"strconv"
+
+	"github.com/michelprogram/adventofcode/utils"
 )
 
 type Day2 struct{}
@@ -40,50 +41,77 @@ func (d Day2) ParseInputs(data []byte) ([][]int, error) {
 
 func (d Day2) Part1(data []byte) (any, error) {
 
-	var counter = 0
+	inputs, err := d.ParseInputs(data)
+
+	if err != nil {
+		return nil, err
+	}
+
+	counter := 0
+
+	for _, numbers := range inputs {
+		if d.isSafe(numbers) {
+			counter++
+		}
+	}
+
+	return counter, nil
+}
+
+func (d Day2) isSafe(numbers []int) bool {
+
+	isIncreasing := numbers[0] < numbers[1]
+
+	for i := 0; i < len(numbers)-1; i++ {
+		diff := numbers[i+1] - numbers[i]
+
+		if diff < -3 || diff > 3 {
+			return false
+		}
+
+		if isIncreasing && diff <= 0 {
+			return false
+		}
+		if !isIncreasing && diff >= 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func (d Day2) Part2(data []byte) (any, error) {
 
 	inputs, err := d.ParseInputs(data)
 
 	if err != nil {
-		return counter, err
+		return nil, err
 	}
 
-	for _, input := range inputs {
+	counter := 0
 
-		min := input[0]
-		max := input[len(input)-1]
-
-		if (max > min && d.Backward(input)) || d.Forward(input) {
+	for _, numbers := range inputs {
+		if d.isSafeWithDampener(numbers) {
 			counter++
 		}
-
 	}
 
 	return counter, nil
 
 }
 
-func (d Day2) Backward(input []int) bool {
-	for i := len(input) - 1; i > 0; i-- {
-		if input[i] <= input[i-1] || input[i]-input[i-1] > 3 {
-			return false
+func (d Day2) isSafeWithDampener(numbers []int) bool {
+	if d.isSafe(numbers) {
+		return true
+	}
+
+	for i := 0; i < len(numbers); i++ {
+		modified := append([]int{}, numbers[:i]...)
+		modified = append(modified, numbers[i+1:]...)
+
+		if d.isSafe(modified) {
+			return true
 		}
 	}
 
-	return true
-}
-
-func (d Day2) Forward(input []int) bool {
-	for i := 0; i < len(input)-1; i++ {
-		if input[i+1] >= input[i] || input[i]-input[i+1] > 3 {
-			return false
-		}
-	}
-
-	return true
-}
-
-func (d Day2) Part2(data []byte) (any, error) {
-
-	return nil, nil
+	return false
 }

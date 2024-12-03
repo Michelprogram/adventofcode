@@ -15,17 +15,24 @@ func main() {
 	var day int
 	var year int
 	var part int
+	var test bool
+	var data []byte
+	var err error
 
 	flag.IntVar(&year, "year", 2023, "select year")
 	flag.IntVar(&day, "day", 1, "select day")
 	flag.IntVar(&part, "part", 1, "part could be either 1 or 2")
+	flag.BoolVar(&test, "test", false, "test mode without http request")
 
 	flag.Parse()
 
-	data, err := utils.FecthDataSet(year, day)
+	if !test {
 
-	if err != nil {
-		log.Fatalf("Can't fetch data for day %d\n", day)
+		data, err = utils.FecthDataSet(year, day)
+
+		if err != nil {
+			log.Fatalf("Can't fetch data for day %d\n", day)
+		}
 	}
 
 	years := map[int]utils.Code{

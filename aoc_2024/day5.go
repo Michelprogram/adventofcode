@@ -1,6 +1,7 @@
 package aoc2024
 
 import (
+	"log"
 	"strconv"
 	"strings"
 
@@ -43,10 +44,28 @@ func (d Day5) ParseInputs(data []byte) (map[string]map[string]struct{}, [][]stri
 	return pageOrdering, updates, nil
 }
 
+func (d Day5) isValidSequence(numbers []string, hash map[string]map[string]struct{}) bool {
+	seen := make(map[string]struct{})
+	isValid := true
+
+	for _, number := range numbers {
+		for k := range hash[number] {
+			if _, exists := seen[k]; exists {
+				isValid = false
+				break
+			}
+		}
+		if !isValid {
+			break
+		}
+		seen[number] = struct{}{}
+	}
+
+	return isValid
+}
+
 func (d Day5) Part1(data []byte) (any, error) {
 	var res int
-
-	//inputs := []byte("47|53\n97|13\n97|61\n97|47\n75|29\n61|13\n75|53\n29|13\n97|29\n53|29\n61|53\n97|53\n61|29\n47|13\n75|47\n97|75\n47|61\n75|61\n47|29\n75|13\n53|13\n\n75,47,61,53,29\n97,61,53,29,13\n75,29,13\n75,97,47,61,53\n61,13,29\n97,13,75,29,47")
 
 	hash, updates, err := d.ParseInputs(data)
 
@@ -55,23 +74,8 @@ func (d Day5) Part1(data []byte) (any, error) {
 	}
 
 	for _, numbers := range updates {
-		seen := make(map[string]struct{})
-		isValid := true
 
-		for _, number := range numbers {
-			for k := range hash[number] {
-				if _, exists := seen[k]; exists {
-					isValid = false
-					break
-				}
-			}
-			if !isValid {
-				break
-			}
-			seen[number] = struct{}{}
-		}
-
-		if isValid {
+		if d.isValidSequence(numbers, hash) {
 
 			n, err := strconv.Atoi(numbers[len(numbers)/2])
 
@@ -87,9 +91,51 @@ func (d Day5) Part1(data []byte) (any, error) {
 	return res, nil
 }
 
+func (d Day5) orderSequence(numbers []string, hash map[string]map[string]struct{}) string {
+
+	n := len(numbers)
+	for i := 0; i < n-1; i++ {
+		for j := 0; j < n-i-1; j++ {
+			if _, ok := hash[numbers[j+1]][numbers[j]]; ok {
+				numbers[j], numbers[j+1] = numbers[j+1], numbers[j]
+			}
+		}
+	}
+
+	//97,13,75,29,47
+	return numbers[len(numbers)/2]
+
+}
+
 func (d Day5) Part2(data []byte) (any, error) {
 
 	var res int
+
+	hash, updates, err := d.ParseInputs(data)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, numbers := range updates {
+
+		if !d.isValidSequence(numbers, hash) {
+
+			log.Println(numbers)
+
+			middle := d.orderSequence(numbers, hash)
+
+			number, err := strconv.Atoi(middle)
+
+			if err != nil {
+				return nil, err
+			}
+
+			res += number
+
+		}
+
+	}
 
 	return res, nil
 }

@@ -18,6 +18,7 @@ func (a Aoc) Execute(data []byte, part, day int) (any, error) {
 		Day4{},
 		Day5{},
 		Day6{},
+		Day7{},
 	}
 
 	if part == 1 {

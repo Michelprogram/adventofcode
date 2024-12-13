@@ -87,10 +87,7 @@ func (g Map) isOutOfBound(point Point) bool {
 
 func (g *Map) generateAntiNode() {
 
-	for key, points := range g.Antennas {
-
-		log.Println(string(key), points)
-
+	for _, points := range g.Antennas {
 		for i := 0; i < len(points); i++ {
 			for j := 0; j < len(points); j++ {
 				if i != j {
@@ -114,16 +111,9 @@ func (g *Map) generateAntiNodeResonant() {
 		for i := 0; i < len(points); i++ {
 			for j := 0; j < len(points); j++ {
 				if i != j {
-					flag := true
 					antinode := points[i].createAntinodes(points[j])
 					last := points[i]
 					for !g.isOutOfBound(antinode) {
-						log.Fatalf("Generating antinodes between %v and %v", points[i], points[j])
-
-						if flag {
-							g.Counter++
-							flag = false
-						}
 
 						g.Antinodes[antinode] = struct{}{}
 
@@ -144,7 +134,7 @@ func (g *Map) generateAntiNodeResonant() {
 }
 
 func (g Map) String() string {
-	var res string = "\n"
+	var res = "\n"
 
 	for _, col := range g.Grid {
 		res += fmt.Sprintf("%s\n", col)
@@ -177,8 +167,6 @@ func (d Day8) Part1(data []byte) (any, error) {
 
 func (d Day8) Part2(data []byte) (any, error) {
 
-	data = []byte("............\n........0...\n.....0......\n.......0....\n....0.......\n......A.....\n............\n............\n........A...\n.........A..\n............\n............\n")
-
 	inputs, _ := d.ParseInputs(data)
 
 	grid := NewMap(inputs)
@@ -187,7 +175,7 @@ func (d Day8) Part2(data []byte) (any, error) {
 
 	grid.generateAntiNodeResonant()
 
-	log.Println(grid, grid.Counter)
+	log.Println(len(grid.Antinodes), grid.Antinodes)
 
 	return len(grid.Antinodes), nil
 }

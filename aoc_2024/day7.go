@@ -65,6 +65,7 @@ func (d Day7) generateCombinations(numbers []int, index int, current []string, r
 
 	d.generateCombinations(numbers, index+1, append(current, "+"), results)
 	d.generateCombinations(numbers, index+1, append(current, "*"), results)
+	d.generateCombinations(numbers, index+1, append(current, "||"), results)
 }
 
 func (d Day7) isEquationResolvable(expected int, numbers []int, possibilities [][]string) bool {
@@ -116,9 +117,53 @@ func (d Day7) Part1(data []byte) (any, error) {
 	return res, nil
 }
 
+func (d Day7) isEquationResolvable2(expected int, numbers []int, possibilities [][]string) bool {
+
+	for _, possibility := range possibilities {
+		res := numbers[0]
+
+		for i := 1; i < len(numbers); i++ {
+			switch possibility[i-1] {
+			case "+":
+				res += numbers[i]
+			case "*":
+				res *= numbers[i]
+			case "||":
+				res, _ = strconv.Atoi(strconv.Itoa(res) + strconv.Itoa(numbers[i]))
+			}
+		}
+		if res == expected {
+			return true
+		}
+	}
+
+	return false
+
+}
+
 func (d Day7) Part2(data []byte) (any, error) {
 
 	var res int
+
+	//data = []byte("190: 10 19\n3267: 81 40 27\n83: 17 5\n156: 15 6\n7290: 6 8 6 15\n161011: 16 10 13\n192: 17 8 14\n21037: 9 7 18 13\n292: 11 6 16 20\n")
+
+	inputs, err := d.ParseInputs(data)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for key, values := range inputs {
+
+		possibilities := [][]string{}
+
+		d.generateCombinations(values, 0, []string{}, &possibilities)
+
+		if d.isEquationResolvable2(key, values, possibilities) {
+			res += key
+		}
+
+	}
 
 	return res, nil
 }

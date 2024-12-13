@@ -2,21 +2,67 @@ package aoc2024
 
 import (
 	"bytes"
-	"github.com/michelprogram/adventofcode/utils"
+	"fmt"
 	"log"
+
+	"github.com/michelprogram/adventofcode/utils"
 )
 
 type Day8 struct{}
 
+type Point struct {
+	X int
+	Y int
+}
+
+func (p Point) String() string {
+
+	return fmt.Sprintf("X:%d Y:%d", p.X, p.Y)
+}
+
+func (p Point) createAntinodes(point Point) Point {
+
+	var x, y int
+
+	diffX := abs(p.X - point.X)
+	diffY := abs(p.Y - point.Y)
+
+	//Is under
+	if point.Y > p.Y {
+		y = p.Y - diffY
+	} else {
+		y = p.Y + diffY
+	}
+
+	if point.X > p.X {
+		x = p.X - diffX
+	} else {
+		x = p.X + diffX
+	}
+
+	return Point{
+		X: x,
+		Y: y,
+	}
+}
+
 type Map struct {
-	Antennas map[byte][][2]int
-	Grid     [][]byte
+	Antennas  map[byte][]Point
+	Antinodes map[Point]struct{}
+	Grid      [][]byte
+	MaxX      int
+	MaxY      int
+	Counter   int
 }
 
 func NewMap(data [][]byte) *Map {
 	return &Map{
-		Antennas: make(map[byte][][2]int),
-		Grid:     data,
+		Antennas:  make(map[byte][]Point),
+		Antinodes: make(map[Point]struct{}),
+		Grid:      data,
+		MaxX:      len(data[0]),
+		MaxY:      len(data),
+		Counter:   0,
 	}
 }
 
@@ -27,17 +73,84 @@ func (g *Map) setAntennas() {
 			if val != byte('.') {
 
 				if _, ok := g.Antennas[val]; !ok {
-					g.Antennas[val] = make([][2]int, 0)
+					g.Antennas[val] = make([]Point, 0)
 				}
-				g.Antennas[val] = append(g.Antennas[val], [2]int{x, y})
+				g.Antennas[val] = append(g.Antennas[val], Point{x, y})
 			}
 		}
 	}
-
 }
 
-func (g *Map) manhattanDist(x1, x2, y1, y2 int) int {
-	return abs(x1-x2) + abs(y1-y2)
+func (g Map) isOutOfBound(point Point) bool {
+	return point.X < 0 || point.X >= g.MaxX || point.Y >= g.MaxY || point.Y < 0
+}
+
+func (g *Map) generateAntiNode() {
+
+	for key, points := range g.Antennas {
+
+		log.Println(string(key), points)
+
+		for i := 0; i < len(points); i++ {
+			for j := 0; j < len(points); j++ {
+				if i != j {
+					antinode := points[i].createAntinodes(points[j])
+					if !g.isOutOfBound(antinode) {
+						g.Antinodes[antinode] = struct{}{}
+						if g.Grid[antinode.Y][antinode.X] == byte('.') {
+							g.Grid[antinode.Y][antinode.X] = byte('#')
+						}
+					}
+				}
+
+			}
+		}
+	}
+}
+
+func (g *Map) generateAntiNodeResonant() {
+
+	for _, points := range g.Antennas {
+		for i := 0; i < len(points); i++ {
+			for j := 0; j < len(points); j++ {
+				if i != j {
+					flag := true
+					antinode := points[i].createAntinodes(points[j])
+					last := points[i]
+					for !g.isOutOfBound(antinode) {
+						log.Fatalf("Generating antinodes between %v and %v", points[i], points[j])
+
+						if flag {
+							g.Counter++
+							flag = false
+						}
+
+						g.Antinodes[antinode] = struct{}{}
+
+						if g.Grid[antinode.Y][antinode.X] == byte('.') {
+							g.Grid[antinode.Y][antinode.X] = byte('#')
+						}
+
+						tmp := antinode
+
+						antinode = antinode.createAntinodes(last)
+
+						last = tmp
+					}
+				}
+			}
+		}
+	}
+}
+
+func (g Map) String() string {
+	var res string = "\n"
+
+	for _, col := range g.Grid {
+		res += fmt.Sprintf("%s\n", col)
+	}
+
+	return res
 }
 
 var _ utils.Challenge = (*Day8)(nil)
@@ -51,9 +164,20 @@ func (d Day8) ParseInputs(data []byte) ([][]byte, error) {
 
 func (d Day8) Part1(data []byte) (any, error) {
 
-	var res int
+	inputs, _ := d.ParseInputs(data)
 
-	data = []byte("..........\n...#......\n#.........\n....a.....\n........a.\n.....a....\n..#.......\n......#...\n..........\n..........")
+	grid := NewMap(inputs)
+
+	grid.setAntennas()
+
+	grid.generateAntiNode()
+
+	return len(grid.Antinodes), nil
+}
+
+func (d Day8) Part2(data []byte) (any, error) {
+
+	data = []byte("............\n........0...\n.....0......\n.......0....\n....0.......\n......A.....\n............\n............\n........A...\n.........A..\n............\n............\n")
 
 	inputs, _ := d.ParseInputs(data)
 
@@ -61,16 +185,9 @@ func (d Day8) Part1(data []byte) (any, error) {
 
 	grid.setAntennas()
 
-	coord := grid.Antennas[97]
+	grid.generateAntiNodeResonant()
 
-	log.Println(grid.manhattanDist(coord[0][0], coord[0][1], coord[1][0], coord[1][1]))
+	log.Println(grid, grid.Counter)
 
-	return res, nil
-}
-
-func (d Day8) Part2(data []byte) (any, error) {
-
-	var res int
-
-	return res, nil
+	return len(grid.Antinodes), nil
 }

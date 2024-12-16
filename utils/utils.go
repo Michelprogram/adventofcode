@@ -83,5 +83,8 @@ func FecthDataSet(year, day int) ([]byte, error) {
 	}
 
 	return body, nil
+}
 
+func IsOutOfBound(x, y, maxX, maxY int) bool {
+	return x < 0 || x >= maxX || y >= maxY || y < 0
 }

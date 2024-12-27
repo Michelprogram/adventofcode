@@ -2,8 +2,10 @@ package aoc2024
 
 import (
 	"bytes"
-	"github.com/michelprogram/adventofcode/utils"
+	"log"
 	"strconv"
+
+	"github.com/michelprogram/adventofcode/utils"
 )
 
 type Day9 struct{}
@@ -54,9 +56,16 @@ func fillArrayWithId(inputs []int) []int {
 	return blocks
 }
 
+type Free struct {
+	Value    int
+	Position int
+}
+
 type Disk struct {
-	Map    []int
-	Blocks []int
+	Map        []int
+	Blocks     []int
+	Files      []int
+	FreeSpaces []Free
 }
 
 func NewDisk(inputs []int) *Disk {
@@ -90,32 +99,6 @@ func (d *Disk) Compress() {
 			continue
 		}
 
-		// Swap the blocks
-		d.Blocks[start], d.Blocks[end] = d.Blocks[end], d.Blocks[start]
-		start++
-		end--
-	}
-
-	d.Blocks = d.Blocks[:d.indexFreeSpace()]
-
-}
-
-func (d *Disk) CompressV2() {
-
-	start := d.indexFreeSpace()
-	end := len(d.Blocks) - 1
-
-	for start < end {
-		if d.Blocks[start] != -1 {
-			start++
-			continue
-		}
-		if d.Blocks[end] == -1 {
-			end--
-			continue
-		}
-
-		// Swap the blocks
 		d.Blocks[start], d.Blocks[end] = d.Blocks[end], d.Blocks[start]
 		start++
 		end--
@@ -149,7 +132,98 @@ func (d Day9) Part1(data []byte) (any, error) {
 	return disk.CheckSum(), nil
 }
 
+func (d *Disk) splitBlocks() {
+
+	d.Files = make([]int, 0, len(d.Map)/2)
+	d.FreeSpaces = make([]Free, 0, (len(d.Map)-1)/2)
+	sum := 0
+
+	for i, number := range d.Map {
+		if i%2 == 0 {
+			d.Files = append(d.Files, number)
+		} else {
+			d.FreeSpaces = append(d.FreeSpaces, Free{
+				Value:    number,
+				Position: sum,
+			})
+		}
+		sum += number
+	}
+}
+
+func (d Disk) couldSwap(size int) int {
+
+	for j, free := range d.FreeSpaces {
+		if size <= free.Value {
+			return j
+		}
+	}
+
+	return -1
+
+}
+
+func (d *Disk) CompressV2() {
+
+	start := d.indexFreeSpace()
+	end := len(d.Blocks) - 1
+	lastFileIdx := len(d.Files) - 1
+
+	for lastFileIdx > 0 {
+		if d.Blocks[start] != -1 {
+			start++
+			continue
+		}
+		if d.Blocks[end] == -1 {
+			end--
+			continue
+		}
+
+		spaceNeeded := utils.NumberOfDigits(lastFileIdx) * d.Files[lastFileIdx]
+
+		if freeIdx := d.couldSwap(spaceNeeded); freeIdx != -1 {
+
+			for i := end + 1 - spaceNeeded; i < end+1; i++ {
+				d.Blocks[start], d.Blocks[i] = d.Blocks[i], d.Blocks[start]
+				start++
+			}
+
+			end -= spaceNeeded
+			lastFileIdx--
+
+			d.FreeSpaces[freeIdx].Value -= spaceNeeded
+			d.FreeSpaces[freeIdx].Position += spaceNeeded
+
+		} else {
+
+			end -= spaceNeeded
+
+		}
+
+	}
+
+	//d.Blocks = d.Blocks[:d.indexFreeSpace()]
+
+}
+
 func (d Day9) Part2(data []byte) (any, error) {
+
+	data = []byte("2333133121414131402\n")
+	//data = []byte("233313312141413140214\n")
+
+	inputs, err := d.ParseInputs(data)
+
+	if err != nil {
+		return nil, err
+	}
+
+	disk := NewDisk(inputs)
+
+	disk.splitBlocks()
+
+	disk.CompressV2()
+
+	log.Println(disk.Blocks)
 
 	return nil, nil
 }

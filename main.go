@@ -2,9 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"log"
-	"time"
 
 	aoc2024 "github.com/michelprogram/adventofcode/aoc_2024"
 	"github.com/michelprogram/adventofcode/utils"
@@ -16,45 +13,25 @@ func main() {
 	var year int
 	var part int
 	var test bool
-	var data []byte
-	var err error
+	var generator bool
 
 	flag.IntVar(&year, "year", 2024, "select year")
 	flag.IntVar(&day, "day", 9, "select day")
 	flag.IntVar(&part, "part", 1, "part could be either 1 or 2")
 	flag.BoolVar(&test, "test", false, "test mode without http request")
+	flag.BoolVar(&generator, "generator", false, "generate files structure")
 
 	flag.Parse()
 
-	if !test {
+	if generator {
+		utils.GenerateFiles(day, year)
+	} else {
 
-		data, err = utils.FecthDataSet(year, day)
-
-		if err != nil {
-			log.Fatalf("Can't fetch data for day %d\n", day)
+		aocs := map[int]utils.Code{
+			2024: aoc2024.Aoc{},
 		}
+
+		utils.RunAoc(test, part, day, year, aocs)
 	}
-
-	years := map[int]utils.Code{
-		2024: aoc2024.Aoc{},
-	}
-
-	aoc, ok := years[year]
-
-	if !ok {
-		log.Fatalf("year %d doesn't exist\n", year)
-	}
-
-	start := time.Now()
-
-	res, err := aoc.Execute(data, part, day)
-
-	if err != nil {
-		log.Fatalf("Error during advent code %d for day %d : %s\n", year, day, err)
-	}
-
-	fmt.Printf("Time : %v\n", time.Since(start))
-
-	fmt.Printf("Resultat for day %d : %v\n", day, res)
 
 }

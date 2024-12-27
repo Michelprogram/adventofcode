@@ -12,13 +12,6 @@ type Day1 struct{}
 
 var _ utils.Challenge = (*Day1)(nil)
 
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
 func (d Day1) ParseInputs(data []byte) ([]int, []int, error) {
 
 	lines := bytes.Split(data, []byte("\n"))
@@ -78,7 +71,7 @@ func (d Day1) Part1(data []byte) (any, error) {
 
 	for i, n1 := range l1 {
 
-		res += abs(n1 - l2[i])
+		res += utils.Abs(n1 - l2[i])
 
 	}
 

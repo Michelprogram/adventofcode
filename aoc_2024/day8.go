@@ -24,8 +24,8 @@ func (p Point) createAntinodes(point Point) Point {
 
 	var x, y int
 
-	diffX := abs(p.X - point.X)
-	diffY := abs(p.Y - point.Y)
+	diffX := utils.Abs(p.X - point.X)
+	diffY := utils.Abs(p.Y - point.Y)
 
 	//Is under
 	if point.Y > p.Y {

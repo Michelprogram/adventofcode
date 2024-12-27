@@ -17,6 +17,26 @@ type Runner struct{}
 
 var _ utils.Challenge = (*Runner)(nil)
 
+type Storage interface {
+	Add(utils.Point)
+}
+
+type MapStorage struct {
+	Data map[utils.Point]struct{}
+}
+
+func (m *MapStorage) Add(point utils.Point) {
+	m.Data[point] = struct{}{}
+}
+
+type ArrayStorage struct {
+	Data []utils.Point
+}
+
+func (a *ArrayStorage) Add(point utils.Point) {
+	a.Data = append(a.Data, point)
+}
+
 type Node struct {
 	utils.Point
 	Value int
@@ -62,44 +82,53 @@ func NewGraph(data []byte) (*Graph, error) {
 	return graph, nil
 }
 
-func (t Graph) FindPath(node Node) int {
-
-	var worker func(nestedLevel int, node Node)
-	visited := make(map[utils.Point]struct{})
-	founded := make(map[utils.Point]struct{})
-
-	worker = func(nestedLevel int, node Node) {
-
-		if nestedLevel == 9 && node.Value == 9 {
-			founded[node.Point] = struct{}{}
-			return
-		}
-
-		visited[node.Point] = struct{}{}
-
-		expected := node.Value + 1
-		adjacents := []utils.Point{
-			{node.X, node.Y - 1},
-			{node.X, node.Y + 1},
-			{node.X + 1, node.Y},
-			{node.X - 1, node.Y},
-		}
-
-		for _, adjacent := range adjacents {
-
-			next, isExist := t.Nodes[adjacent]
-			_, alreadyVisited := visited[adjacent]
-			if isExist && next.Value == expected && !alreadyVisited {
-				worker(nestedLevel+1, *next)
-			}
-
-		}
-		delete(visited, node.Point)
+func (t Graph) worker(nestedLevel int, node Node, visited map[utils.Point]struct{}, storage Storage) {
+	if nestedLevel == 9 && node.Value == 9 {
+		storage.Add(node.Point)
+		//		founded[node.Point] = struct{}{}
+		return
 	}
 
-	worker(0, node)
+	visited[node.Point] = struct{}{}
 
-	return len(founded)
+	expected := node.Value + 1
+	adjacents := []utils.Point{
+		{node.X, node.Y - 1},
+		{node.X, node.Y + 1},
+		{node.X + 1, node.Y},
+		{node.X - 1, node.Y},
+	}
+
+	for _, adjacent := range adjacents {
+
+		next, isExist := t.Nodes[adjacent]
+		_, alreadyVisited := visited[adjacent]
+		if isExist && next.Value == expected && !alreadyVisited {
+			t.worker(nestedLevel+1, *next, visited, storage)
+		}
+
+	}
+	delete(visited, node.Point)
+}
+
+func (t Graph) FindPath(node Node) int {
+
+	visited := make(map[utils.Point]struct{})
+	founded := MapStorage{make(map[utils.Point]struct{})}
+
+	t.worker(0, node, visited, &founded)
+
+	return len(founded.Data)
+}
+
+func (t Graph) FindPathV2(node Node) int {
+
+	visited := make(map[utils.Point]struct{})
+	founded := ArrayStorage{make([]utils.Point, 0)}
+
+	t.worker(0, node, visited, &founded)
+
+	return len(founded.Data)
 
 }
 
@@ -123,5 +152,18 @@ func (d Runner) Part1(data []byte) (any, error) {
 
 func (d Runner) Part2(data []byte) (any, error) {
 
-	return nil, nil
+	res := 0
+
+	graph, err := NewGraph(data)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, start := range graph.Started {
+		res += graph.FindPathV2(*start)
+	}
+
+	return res, nil
+
 }

@@ -17,11 +17,6 @@ func TestWorker(t *testing.T) {
 
 	providers := []DataProvider{
 		{
-			Inputs:    []int{125},
-			Iteration: 78,
-			Expected:  22,
-		},
-		{
 			Inputs:    []int{125, 17},
 			Iteration: 6,
 			Expected:  22,
@@ -47,32 +42,28 @@ func TestWorker(t *testing.T) {
 	}
 }
 
-/*
-func TestPart1(t *testing.T) {
+func TestRunner_WorkerWithMemoization(t *testing.T) {
 	var runner day11.Runner
 
 	providers := []DataProvider{
 
 		{
-			Inputs:   []byte("125 17"),
-			Expected: 22,
+			Inputs:    []int{125, 17},
+			Iteration: 6,
+			Expected:  22,
 		},
 		{
-			Inputs:   []byte("0 1 10 99 999"),
-			Expected: 7,
+			Inputs:    []int{125, 17},
+			Iteration: 75,
+			Expected:  22,
 		},
 	}
 
 	for _, provider := range providers {
-		res, err := runner.Part1(provider.Inputs)
-
-		if err != nil {
-			t.Fatalf("There shouldn't be error: %s\n", err.Error())
-		}
+		res := runner.WorkerWithMemoization(provider.Inputs, provider.Iteration)
 
 		if res != provider.Expected {
 			t.Fatalf("Should return %d instead %d\n", provider.Expected, res)
 		}
 	}
 }
-*/

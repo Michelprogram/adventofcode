@@ -3,6 +3,7 @@ package aoc2024
 import (
 	"fmt"
 
+	_ "github.com/michelprogram/adventofcode/aoc_2024/day09"
 	_ "github.com/michelprogram/adventofcode/aoc_2024/day10"
 	_ "github.com/michelprogram/adventofcode/aoc_2024/day11"
 	"github.com/michelprogram/adventofcode/registry"

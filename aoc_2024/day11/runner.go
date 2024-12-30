@@ -1,7 +1,7 @@
 package day11
 
 import (
-	"log"
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -33,30 +33,22 @@ func (d Runner) ParseInput(data []byte) ([]int, error) {
 
 func (d Runner) Worker(data []int, iteration int) int {
 
-	cache := make(map[int][]int)
-
-	cache[0] = []int{1}
-
 	for i := 0; i < iteration; i++ {
-		log.Println(i)
+
 		tmp := make([]int, 0, len(data)*2)
 
 		for _, number := range data {
 
-			res, exist := cache[number]
-
-			if exist {
-				tmp = append(tmp, res...)
+			if number == 0 {
+				tmp = append(tmp, 1)
 			} else if size := utils.NumberOfDigits(number); size%2 == 0 {
 
 				divisor := int(math.Pow10(size / 2))
 
 				leftPart, rightPart := number/divisor, number%divisor
-				cache[number] = []int{leftPart, rightPart}
 				tmp = append(tmp, leftPart, rightPart)
 			} else {
 				tmp = append(tmp, number*2024)
-				cache[number] = []int{number * 2024}
 			}
 
 		}
@@ -64,9 +56,46 @@ func (d Runner) Worker(data []int, iteration int) int {
 		data = tmp
 	}
 
-	log.Println(data)
-
 	return len(data)
+}
+
+func (d Runner) WorkerWithMemoization(data []int, iteration int) int {
+
+	memo := make(map[string]int)
+
+	var runner func(number, level int) int
+	runner = func(number, level int) int {
+		if level == iteration {
+			return 1
+		}
+
+		key := fmt.Sprintf("%d_%d", number, level)
+		if count, exists := memo[key]; exists {
+			return count
+		}
+
+		var result int
+		if number == 0 {
+			result = runner(1, level+1)
+		} else if size := utils.NumberOfDigits(number); size%2 == 0 {
+			divisor := int(math.Pow10(size / 2))
+			leftPart := number / divisor
+			rightPart := number % divisor
+			result = runner(leftPart, level+1) + runner(rightPart, level+1)
+		} else {
+			result = runner(number*2024, level+1)
+		}
+		memo[key] = result
+		return result
+	}
+
+	totalStones := 0
+	for _, num := range data {
+		totalStones += runner(num, 0)
+	}
+
+	return totalStones
+
 }
 
 func (d Runner) Part1(data []byte) (any, error) {
@@ -87,7 +116,7 @@ func (d Runner) Part2(data []byte) (any, error) {
 		return nil, err
 	}
 
-	return d.Worker(input, 75), nil
+	return d.WorkerWithMemoization(input, 75), nil
 }
 
 func init() {

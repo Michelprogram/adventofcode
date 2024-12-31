@@ -9,7 +9,8 @@ type Challenge interface {
 	Part2([]byte) (any, error)
 }
 
-type Point struct {
-	X int
-	Y int
+type Point[T any] struct {
+	X     int
+	Y     int
+	Value T
 }

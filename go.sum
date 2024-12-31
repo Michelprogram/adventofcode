@@ -1,0 +1,4 @@
+github.com/Michelprogram/data-structures v0.0.0-20220724172617-32013b8e8fa9 h1:U7iwGF2nmIgl9ErYiyHir4p60Po6BZ9d01FbcFLG1sQ=
+github.com/Michelprogram/data-structures v0.0.0-20220724172617-32013b8e8fa9/go.mod h1:b1qubpSETUu5w659knUdBCIH2B8ZDTiIZodvFadXUXc=
+golang.org/x/exp v0.0.0-20220713135740-79cabaa25d75 h1:x03zeu7B2B11ySp+daztnwM5oBJ/8wGUSqrwcw9L0RA=
+golang.org/x/exp v0.0.0-20220713135740-79cabaa25d75/go.mod h1:Kr81I6Kryrl9sr8s2FK3vxD90NdsKWRuOIl2O4CvYbA=

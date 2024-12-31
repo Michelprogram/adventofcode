@@ -18,27 +18,27 @@ type Runner struct{}
 var _ utils.Challenge = (*Runner)(nil)
 
 type Storage interface {
-	Add(utils.Point)
+	Add(utils.Point[any])
 }
 
 type MapStorage struct {
-	Data map[utils.Point]struct{}
+	Data map[utils.Point[any]]struct{}
 }
 
-func (m *MapStorage) Add(point utils.Point) {
+func (m *MapStorage) Add(point utils.Point[any]) {
 	m.Data[point] = struct{}{}
 }
 
 type ArrayStorage struct {
-	Data []utils.Point
+	Data []utils.Point[any]
 }
 
-func (a *ArrayStorage) Add(point utils.Point) {
+func (a *ArrayStorage) Add(point utils.Point[any]) {
 	a.Data = append(a.Data, point)
 }
 
 type Node struct {
-	utils.Point
+	utils.Point[any]
 	Value int
 }
 
@@ -47,7 +47,7 @@ func (t Node) String() string {
 }
 
 type Graph struct {
-	Nodes   map[utils.Point]*Node
+	Nodes   map[utils.Point[any]]*Node
 	Started []*Node
 }
 
@@ -56,7 +56,7 @@ func NewGraph(data []byte) (*Graph, error) {
 	lines := strings.Fields(string(data))
 
 	graph := &Graph{
-		Nodes:   make(map[utils.Point]*Node),
+		Nodes:   make(map[utils.Point[any]]*Node),
 		Started: make([]*Node, 0),
 	}
 
@@ -69,7 +69,7 @@ func NewGraph(data []byte) (*Graph, error) {
 				return nil, err
 			}
 
-			node := &Node{utils.Point{X: x, Y: y}, num}
+			node := &Node{utils.Point[any]{X: x, Y: y}, num}
 
 			if num == 0 {
 				graph.Started = append(graph.Started, node)
@@ -82,7 +82,7 @@ func NewGraph(data []byte) (*Graph, error) {
 	return graph, nil
 }
 
-func (t Graph) worker(nestedLevel int, node Node, visited map[utils.Point]struct{}, storage Storage) {
+func (t Graph) worker(nestedLevel int, node Node, visited map[utils.Point[any]]struct{}, storage Storage) {
 	if nestedLevel == 9 && node.Value == 9 {
 		storage.Add(node.Point)
 		//		founded[node.Point] = struct{}{}
@@ -92,11 +92,11 @@ func (t Graph) worker(nestedLevel int, node Node, visited map[utils.Point]struct
 	visited[node.Point] = struct{}{}
 
 	expected := node.Value + 1
-	adjacents := []utils.Point{
-		{node.X, node.Y - 1},
-		{node.X, node.Y + 1},
-		{node.X + 1, node.Y},
-		{node.X - 1, node.Y},
+	adjacents := []utils.Point[any]{
+		{X: node.X, Y: node.Y - 1},
+		{X: node.X, Y: node.Y + 1},
+		{X: node.X + 1, Y: node.Y},
+		{X: node.X - 1, Y: node.Y},
 	}
 
 	for _, adjacent := range adjacents {
@@ -113,8 +113,8 @@ func (t Graph) worker(nestedLevel int, node Node, visited map[utils.Point]struct
 
 func (t Graph) FindPath(node Node) int {
 
-	visited := make(map[utils.Point]struct{})
-	founded := MapStorage{make(map[utils.Point]struct{})}
+	visited := make(map[utils.Point[any]]struct{})
+	founded := MapStorage{make(map[utils.Point[any]]struct{})}
 
 	t.worker(0, node, visited, &founded)
 
@@ -123,8 +123,8 @@ func (t Graph) FindPath(node Node) int {
 
 func (t Graph) FindPathV2(node Node) int {
 
-	visited := make(map[utils.Point]struct{})
-	founded := ArrayStorage{make([]utils.Point, 0)}
+	visited := make(map[utils.Point[any]]struct{})
+	founded := ArrayStorage{make([]utils.Point[any], 0)}
 
 	t.worker(0, node, visited, &founded)
 

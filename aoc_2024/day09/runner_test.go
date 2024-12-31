@@ -12,30 +12,30 @@ type Provider struct {
 	CheckSum  int
 }
 
-/*
-	func TestNewDisk(t *testing.T) {
-		providers := []Provider{
-			{
-				Inputs:    []byte("2333133121414131402"),
-				InputsInt: []int{2, 3, 3, 3, 1, 3, 3, 1, 2, 1, 4, 1, 4, 1, 3, 1, 4, 0, 2},
-				CheckSum:  1928,
-			},
+
+func TestNewDisk(t *testing.T) {
+	providers := []Provider{
+		{
+			Inputs:    []byte("2333133121414131402"),
+			InputsInt: []int{2, 3, 3, 3, 1, 3, 3, 1, 2, 1, 4, 1, 4, 1, 3, 1, 4, 0, 2},
+			CheckSum:  1928,
+		},
+	}
+
+	for _, provider := range providers {
+		disk, err := day09.NewDisk(provider.Inputs)
+		if err != nil {
+			t.Fatalf("There shouldn't be error: %s\n", err.Error())
 		}
 
-		for _, provider := range providers {
-			disk, err := day09.NewDisk(provider.Inputs)
-			if err != nil {
-				t.Fatalf("There shouldn't be error: %s\n", err.Error())
-			}
-
-			for i, container := range disk.Data {
-				if container.Value != provider.InputsInt[i] {
-					t.Fatalf("Values should be the same at index %d instead got %d and %d\n", i, container.Value, provider.InputsInt[i])
-				}
+		for i, container := range disk.Data {
+			if container.Value != provider.InputsInt[i] {
+				t.Fatalf("Values should be the same at index %d instead got %d and %d\n", i, container.Value, provider.InputsInt[i])
 			}
 		}
 	}
-*/
+}
+
 func TestRunner_Part1(t *testing.T) {
 	providers := []Provider{
 		{

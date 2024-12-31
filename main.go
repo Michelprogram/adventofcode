@@ -16,9 +16,9 @@ func main() {
 	var generator bool
 
 	flag.IntVar(&year, "year", 2024, "select year")
-	flag.IntVar(&day, "day", 9, "select day")
+	flag.IntVar(&day, "day", 12, "select day")
 	flag.IntVar(&part, "part", 1, "part could be either 1 or 2")
-	flag.BoolVar(&test, "test", false, "test mode without http request")
+	flag.BoolVar(&test, "test", true, "test mode without http request")
 	flag.BoolVar(&generator, "generator", false, "generate files structure")
 
 	flag.Parse()

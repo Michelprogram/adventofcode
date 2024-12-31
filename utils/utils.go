@@ -145,7 +145,7 @@ func GenerateFiles(day, year int) error {
 package day{{.Day}}
 
 import (
-    aoc2024 "github.com/michelprogram/adventofcode/aoc_2024"
+	"github.com/michelprogram/adventofcode/registry"
    	"github.com/michelprogram/adventofcode/utils"
 )
 
@@ -164,7 +164,7 @@ func (d Runner) Part2(data []byte) (any, error) {
 }
 
 func init() {
-    aoc2024.RegisterChallenge({{.Day}}, Runner{})
+    registry.RegisterChallenge({{.Day}}, Runner{})
 }
     `
 	const testRunnerTemplate = `

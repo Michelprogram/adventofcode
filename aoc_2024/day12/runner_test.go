@@ -44,6 +44,7 @@ func TestRunner_Part1(t *testing.T) {
 		}
 	}
 }
+
 func TestRunner_Sides(t *testing.T) {
 
 	providers := []SideProvider{
@@ -70,13 +71,12 @@ func TestRunner_Sides(t *testing.T) {
 			res, _ := garden.FindRegionArea(plant, visited)
 
 			if res != nil {
-				if garden.ComputeSides(res) != provider.Expected[string(plant.Value)] {
-					t.Fatalf("Should return %d for letter %s instead %d\n", provider.Expected[string(plant.Value)], string(plant.Value), garden.ComputeSides(res))
+				if garden.ComputeSides(res.Plants) != provider.Expected[string(plant.Value)] {
+					t.Fatalf("Should return %d for letter %s instead %d\n", provider.Expected[string(plant.Value)], string(plant.Value), garden.ComputeSides(res.Plants))
 				}
 
 			}
 
 		}
-
 	}
 }

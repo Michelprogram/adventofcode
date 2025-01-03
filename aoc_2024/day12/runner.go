@@ -1,10 +1,12 @@
 package day12
 
 import (
+	"log"
+	"strings"
+
 	"github.com/Michelprogram/data-structures/stack"
 	"github.com/michelprogram/adventofcode/registry"
 	"github.com/michelprogram/adventofcode/utils"
-	"strings"
 )
 
 type Runner struct{}
@@ -22,8 +24,8 @@ var _ utils.Challenge = (*Runner)(nil)
 func FindAdjacents(p utils.Point[rune]) []utils.Point[rune] {
 	return []utils.Point[rune]{
 		{X: p.X, Y: p.Y - 1, Value: p.Value},
-		{X: p.X, Y: p.Y + 1, Value: p.Value},
 		{X: p.X + 1, Y: p.Y, Value: p.Value},
+		{X: p.X, Y: p.Y + 1, Value: p.Value},
 		{X: p.X - 1, Y: p.Y, Value: p.Value},
 	}
 }
@@ -129,9 +131,61 @@ func (g Garden) ComputePerimeter(area map[utils.Point[rune]]struct{}) (res int) 
 
 func (g Garden) ComputeSides(area map[utils.Point[rune]]struct{}) (side int) {
 
-	visited := map[utils.Point[rune]]struct{}{}
+	if len(area) == 1 {
+		return 4
+	}
 
-	for point := range area {
+	for key := range area {
+
+		connected := make([]utils.Point[rune], 0)
+
+		for _, p := range FindAdjacents(key) {
+			if _, exist := area[p]; exist {
+				connected = append(connected, p)
+			}
+		}
+
+		switch len(connected) {
+		case 1:
+			side += 2
+		case 2:
+
+			p1, p2 := connected[0], connected[1]
+
+			diffX := utils.Abs(p1.X - p2.X)
+			diffY := utils.Abs(p1.Y - p2.Y)
+
+			if diffX == 0 || diffY == 0 {
+				continue
+			}
+
+			if p1.Y == key.Y-1 && p1.X == key.X && p2.X == key.X+1 && p2.Y == key.Y {
+				if g.Map[key.Y-1][key.X+1].Value != key.Value {
+					if key.Value == rune('C') {
+						log.Println("1")
+					}
+					side++
+				}
+			} else if p1.X == key.X+1 && p1.Y == key.Y && p2.Y == key.Y+1 && p2.X == key.X {
+				if g.Map[key.Y+1][key.X+1].Value != key.Value {
+					side++
+				}
+			} else if p1.Y == key.Y+1 && p1.X == key.X && p2.X == key.X-1 && p2.Y == key.Y {
+				if g.Map[key.Y+1][key.X-1].Value != key.Value {
+					if key.Value == rune('C') {
+						log.Println("2")
+					}
+					side++
+				}
+			} else if p1.X == key.X-1 && p1.Y == key.Y && p2.Y == key.Y-1 && p2.X == key.X {
+				if g.Map[key.Y-1][key.X-1].Value != key.Value {
+					side++
+				}
+			}
+
+			side++
+
+		}
 
 	}
 
@@ -159,7 +213,21 @@ func (d Runner) Part1(data []byte) (any, error) {
 }
 
 func (d Runner) Part2(data []byte) (any, error) {
-	// TODO: Implement Part 2 logic here
+
+	garden := NewGarden(data)
+
+	visited := make(map[utils.Point[rune]]struct{})
+
+	for _, plant := range garden.Plants {
+
+		res, _ := garden.FindRegionArea(plant, visited)
+
+		if res != nil {
+			garden.ComputeSides(res)
+		}
+
+	}
+
 	return nil, nil
 }
 

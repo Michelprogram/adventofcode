@@ -1,13 +1,20 @@
 package day12_test
 
 import (
-	"github.com/michelprogram/adventofcode/aoc_2024/day12"
 	"testing"
+
+	"github.com/michelprogram/adventofcode/aoc_2024/day12"
+	"github.com/michelprogram/adventofcode/utils"
 )
 
 type DataProvider struct {
 	Inputs   []byte
 	Expected int
+}
+
+type SideProvider struct {
+	Inputs   []byte
+	Expected map[string]int
 }
 
 func TestRunner_Part1(t *testing.T) {
@@ -35,5 +42,41 @@ func TestRunner_Part1(t *testing.T) {
 		if res != provider.Expected {
 			t.Fatalf("Should return %d instead %d\n", provider.Expected, res)
 		}
+	}
+}
+func TestRunner_Sides(t *testing.T) {
+
+	providers := []SideProvider{
+		{
+			Inputs: []byte("AAAA\nBBCD\nBBCC\nEEEE"),
+			Expected: map[string]int{
+				"A": 4,
+				"B": 4,
+				"C": 8,
+				"D": 4,
+				"E": 4,
+			},
+		},
+	}
+
+	for _, provider := range providers {
+
+		garden := day12.NewGarden(provider.Inputs)
+
+		visited := make(map[utils.Point[rune]]struct{})
+
+		for _, plant := range garden.Plants {
+
+			res, _ := garden.FindRegionArea(plant, visited)
+
+			if res != nil {
+				if garden.ComputeSides(res) != provider.Expected[string(plant.Value)] {
+					t.Fatalf("Should return %d for letter %s instead %d\n", provider.Expected[string(plant.Value)], string(plant.Value), garden.ComputeSides(res))
+				}
+
+			}
+
+		}
+
 	}
 }

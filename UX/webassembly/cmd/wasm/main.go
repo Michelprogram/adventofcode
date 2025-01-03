@@ -5,40 +5,47 @@ package main
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 	"syscall/js"
+	"time"
 )
 
 func main() {
-	js.Global().Set("dfs", dfsWrapper())
+	js.Global().Set("dfs", js.FuncOf(dfsWrapper))
 	<-make(chan struct{})
+
 }
 
-func dfsWrapper() js.Func {
-	jsonfunc := js.FuncOf(func(this js.Value, args []js.Value) any {
-		if len(args) != 1 {
-			return "Invalid no of arguments passed"
+func dfsWrapper(this js.Value, args []js.Value) any {
+	if len(args) != 1 {
+		return "Invalid no of arguments passed"
+	}
+
+	start := time.Now()
+
+	garden := NewGarden(args[0].String())
+
+	visited := make(map[Point]struct{})
+
+	res := make([][]Point, 0)
+
+	for _, plant := range garden.Plants {
+
+		points := garden.dfs(plant, visited)
+
+		if points != nil {
+			res = append(res, points)
 		}
-		jsDoc := js.Global().Get("document")
-		if !jsDoc.Truthy() {
-			return "Unable to get document object"
-		}
 
-		garden := NewGarden(args[0].String(), jsDoc)
+	}
 
-		visited := make(map[Point]struct{})
+	log.Println(len(res), time.Since(start))
+	j, _ := json.Marshal(res)
 
-		for _, plant := range garden.Plants {
-
-			_ = garden.dfs(plant, visited)
-
-		}
-
-		return nil
-	})
-
-	return jsonfunc
+	return string(j)
 }
 
 type Point struct {
@@ -51,6 +58,7 @@ type Garden struct {
 	Map       [][]Point
 	Plants    []Point
 	JsDoc     js.Value
+	Canva     js.Value
 }
 
 func FindAdjacents(p Point) []Point {
@@ -62,7 +70,7 @@ func FindAdjacents(p Point) []Point {
 	}
 }
 
-func NewGarden(data string, jsdoc js.Value) *Garden {
+func NewGarden(data string) *Garden {
 
 	lines := strings.Split(data, "\n")
 
@@ -71,7 +79,6 @@ func NewGarden(data string, jsdoc js.Value) *Garden {
 	garden := &Garden{
 		Plants:    make([]Point, 0),
 		Validator: make(map[Point]struct{}),
-		JsDoc:     jsdoc,
 	}
 
 	for y, line := range lines {
@@ -99,27 +106,19 @@ func (g Garden) pickRandomColor() (string, error) {
 	return "#" + hex.EncodeToString(bytes), nil
 }
 
-func (g Garden) setColorHtml(point Point, color string) error {
-	selector := fmt.Sprintf("span[data-x='%d'][data-y='%d']", point.X, point.Y)
-	element := g.JsDoc.Call("querySelector", selector)
-	if !element.IsNull() {
-		element.Get("style").Set("color", color)
-	}
+func (g Garden) dfs(point Point, visited map[Point]struct{}) []Point {
 
-	return nil
-}
-
-func (g Garden) dfs(point Point, visited map[Point]struct{}) error {
+	res := make([]Point, 0)
 
 	if _, ok := visited[point]; ok {
 		return nil
 	}
 
-	color, _ := g.pickRandomColor()
-
 	s := NewStack[Point](1_000)
 
 	_, _ = s.Push(point)
+
+	res = append(res, point)
 
 	for !s.IsEmpty() {
 
@@ -131,9 +130,7 @@ func (g Garden) dfs(point Point, visited map[Point]struct{}) error {
 
 		visited[item] = struct{}{}
 
-		go func() {
-			g.setColorHtml(item, color)
-		}()
+		res = append(res, item)
 
 		adjacents := FindAdjacents(item)
 
@@ -148,7 +145,7 @@ func (g Garden) dfs(point Point, visited map[Point]struct{}) error {
 		}
 	}
 
-	return nil
+	return res
 }
 
 type Stack[T any] struct {

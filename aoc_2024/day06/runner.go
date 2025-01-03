@@ -1,14 +1,13 @@
-package aoc2024
+package day6
 
 import (
 	"bytes"
 	"errors"
-
+	"github.com/michelprogram/adventofcode/registry"
 	"github.com/michelprogram/adventofcode/utils"
 )
 
-type Day6 struct {
-}
+type Runner struct{}
 
 type Grid struct {
 	Inputs      [][]byte
@@ -34,9 +33,9 @@ func NewGrid(inputs [][]byte) *Grid {
 	}
 }
 
-var _ utils.Challenge = (*Day6)(nil)
+var _ utils.Challenge = (*Runner)(nil)
 
-func (d Day6) ParseInputs(data []byte) ([][]byte, error) {
+func (d Runner) ParseInputs(data []byte) ([][]byte, error) {
 	return bytes.Split(data, []byte("\n")), nil
 }
 
@@ -101,7 +100,7 @@ func (g Grid) walk() int {
 
 }
 
-func (d Day6) Part1(data []byte) (any, error) {
+func (d Runner) Part1(data []byte) (any, error) {
 
 	inputs, _ := d.ParseInputs(data)
 
@@ -116,9 +115,13 @@ func (d Day6) Part1(data []byte) (any, error) {
 	return grid.walk(), nil
 }
 
-func (d Day6) Part2(data []byte) (any, error) {
+func (d Runner) Part2(data []byte) (any, error) {
 
 	var res int
 
 	return res, nil
+}
+
+func init() {
+	registry.RegisterChallenge(6, Runner{})
 }

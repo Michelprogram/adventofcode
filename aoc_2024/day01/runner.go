@@ -1,18 +1,18 @@
-package aoc2024
+package day1
 
 import (
 	"bytes"
+	"github.com/michelprogram/adventofcode/registry"
+	"github.com/michelprogram/adventofcode/utils"
 	"sort"
 	"strconv"
-
-	"github.com/michelprogram/adventofcode/utils"
 )
 
-type Day1 struct{}
+type Runner struct{}
 
-var _ utils.Challenge = (*Day1)(nil)
+var _ utils.Challenge = (*Runner)(nil)
 
-func (d Day1) ParseInputs(data []byte) ([]int, []int, error) {
+func (d Runner) ParseInputs(data []byte) ([]int, []int, error) {
 
 	lines := bytes.Split(data, []byte("\n"))
 
@@ -51,7 +51,7 @@ func (d Day1) ParseInputs(data []byte) ([]int, []int, error) {
 
 }
 
-func (d Day1) Part1(data []byte) (any, error) {
+func (d Runner) Part1(data []byte) (any, error) {
 
 	var res int
 
@@ -79,7 +79,7 @@ func (d Day1) Part1(data []byte) (any, error) {
 
 }
 
-func (d Day1) Part2(data []byte) (any, error) {
+func (d Runner) Part2(data []byte) (any, error) {
 
 	var res int
 
@@ -100,4 +100,8 @@ func (d Day1) Part2(data []byte) (any, error) {
 	}
 
 	return res, nil
+}
+
+func init() {
+	registry.RegisterChallenge(1, Runner{})
 }

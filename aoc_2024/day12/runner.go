@@ -1,7 +1,6 @@
 package day12
 
 import (
-	"log"
 	"strings"
 
 	"github.com/Michelprogram/data-structures/stack"
@@ -30,6 +29,73 @@ func (a Area) IsExist(x, y int) bool {
 	_, exist := a.Plants[utils.Point[rune]{X: x, Y: y, Value: a.Letter}]
 
 	return exist
+}
+
+func (a Area) findConnectedAndTracked(point utils.Point[rune]) (map[utils.Point[rune]]struct{}, []utils.Point[rune]) {
+
+	connected := make(map[utils.Point[rune]]struct{})
+	tracks := make([]utils.Point[rune], 0)
+
+	for _, p := range FindAdjacents(point) {
+		if _, exist := a.Plants[p]; exist {
+			connected[p] = struct{}{}
+			tracks = append(tracks, p)
+		}
+	}
+
+	return connected, tracks
+
+}
+
+func (g Garden) CheckCorners(point utils.Point[rune], connected map[utils.Point[rune]]struct{}, side *int) {
+
+	pointExists := func(p utils.Point[rune]) bool {
+		_, exists := connected[p]
+		return exists
+	}
+
+	corners := map[string]struct {
+		check      func(p utils.Point[rune]) bool
+		cornerFunc func(p utils.Point[rune]) utils.Point[rune]
+	}{
+		"topRight": {
+			check: func(p utils.Point[rune]) bool {
+				return pointExists(utils.Point[rune]{X: p.X, Y: p.Y - 1, Value: p.Value}) &&
+					pointExists(utils.Point[rune]{X: p.X + 1, Y: p.Y, Value: p.Value})
+			},
+			cornerFunc: g.topRight,
+		},
+		"bottomRight": {
+			check: func(p utils.Point[rune]) bool {
+				return pointExists(utils.Point[rune]{X: p.X + 1, Y: p.Y, Value: p.Value}) &&
+					pointExists(utils.Point[rune]{X: p.X, Y: p.Y + 1, Value: p.Value})
+			},
+			cornerFunc: g.bottomRight,
+		},
+		"bottomLeft": {
+			check: func(p utils.Point[rune]) bool {
+				return pointExists(utils.Point[rune]{X: p.X, Y: p.Y + 1, Value: p.Value}) &&
+					pointExists(utils.Point[rune]{X: p.X - 1, Y: p.Y, Value: p.Value})
+			},
+			cornerFunc: g.bottomLeft,
+		},
+		"topLeft": {
+			check: func(p utils.Point[rune]) bool {
+				return pointExists(utils.Point[rune]{X: p.X - 1, Y: p.Y, Value: p.Value}) &&
+					pointExists(utils.Point[rune]{X: p.X, Y: p.Y - 1, Value: p.Value})
+			},
+			cornerFunc: g.topLeft,
+		},
+	}
+
+	for _, config := range corners {
+		if config.check(point) && config.cornerFunc(point).Value != point.Value {
+			*side++
+			if len(connected) == 2 {
+				break
+			}
+		}
+	}
 }
 
 var _ utils.Challenge = (*Runner)(nil)
@@ -159,61 +225,48 @@ func (g Garden) ComputePerimeter(area map[utils.Point[rune]]struct{}) (res int) 
 
 }
 
-func (g Garden) ComputeSides(area map[utils.Point[rune]]struct{}) (side int) {
+func (g Garden) topRight(point utils.Point[rune]) utils.Point[rune] {
+	return g.Map[point.Y-1][point.X+1]
+}
 
-	if len(area) == 1 {
+func (g Garden) bottomRight(point utils.Point[rune]) utils.Point[rune] {
+	return g.Map[point.Y+1][point.X+1]
+}
+func (g Garden) bottomLeft(point utils.Point[rune]) utils.Point[rune] {
+	return g.Map[point.Y+1][point.X-1]
+}
+
+func (g Garden) topLeft(point utils.Point[rune]) utils.Point[rune] {
+	return g.Map[point.Y-1][point.X-1]
+}
+
+func (g Garden) ComputeSides(area Area) (side int) {
+
+	if len(area.Plants) == 1 {
 		return 4
 	}
 
-	for key := range area {
+	for key := range area.Plants {
 
-		connected := make([]utils.Point[rune], 0)
+		connected, tracks := area.findConnectedAndTracked(key)
 
-		for _, p := range FindAdjacents(key) {
-			if _, exist := area[p]; exist {
-				connected = append(connected, p)
-			}
-		}
-
-		switch len(connected) {
+		switch len(tracks) {
 		case 1:
 			side += 2
 		case 2:
 
-			p1, p2 := connected[0], connected[1]
+			p1, p2 := tracks[0], tracks[1]
 
-			diffX := utils.Abs(p1.X - p2.X)
-			diffY := utils.Abs(p1.Y - p2.Y)
-
-			if diffX == 0 || diffY == 0 {
+			//Straight doesn't count
+			if p1.X == p2.X || p1.Y == p2.Y {
 				continue
 			}
 
-			if p1.Y == key.Y-1 && p1.X == key.X && p2.X == key.X+1 && p2.Y == key.Y {
-				if g.Map[key.Y-1][key.X+1].Value != key.Value {
-					if key.Value == rune('C') {
-						log.Println("1")
-					}
-					side++
-				}
-			} else if p1.X == key.X+1 && p1.Y == key.Y && p2.Y == key.Y+1 && p2.X == key.X {
-				if g.Map[key.Y+1][key.X+1].Value != key.Value {
-					side++
-				}
-			} else if p1.Y == key.Y+1 && p1.X == key.X && p2.X == key.X-1 && p2.Y == key.Y {
-				if g.Map[key.Y+1][key.X-1].Value != key.Value {
-					if key.Value == rune('C') {
-						log.Println("2")
-					}
-					side++
-				}
-			} else if p1.X == key.X-1 && p1.Y == key.Y && p2.Y == key.Y-1 && p2.X == key.X {
-				if g.Map[key.Y-1][key.X-1].Value != key.Value {
-					side++
-				}
-			}
-
 			side++
+
+			g.CheckCorners(key, connected, &side)
+		case 3, 4:
+			g.CheckCorners(key, connected, &side)
 
 		}
 	}
@@ -244,7 +297,7 @@ func (d Runner) Part1(data []byte) (any, error) {
 
 func (d Runner) Part2(data []byte) (any, error) {
 
-	data = []byte("EEEEE\nEXXXX\nEEEEE\nEXXXX\nEEEEE")
+	res := 0
 
 	garden := NewGarden(data)
 
@@ -255,12 +308,12 @@ func (d Runner) Part2(data []byte) (any, error) {
 		area, _ := garden.FindRegionArea(plant, visited)
 
 		if area != nil {
-			_ = garden.ComputeSides(area.Plants)
+			res += garden.ComputeSides(*area) * len(area.Plants)
 		}
 
 	}
 
-	return nil, nil
+	return res, nil
 }
 
 func init() {

@@ -1,18 +1,18 @@
-package aoc2024
+package day5
 
 import (
+	"github.com/michelprogram/adventofcode/registry"
+	"github.com/michelprogram/adventofcode/utils"
 	"log"
 	"strconv"
 	"strings"
-
-	"github.com/michelprogram/adventofcode/utils"
 )
 
-type Day5 struct{}
+type Runner struct{}
 
-var _ utils.Challenge = (*Day5)(nil)
+var _ utils.Challenge = (*Runner)(nil)
 
-func (d Day5) ParseInputs(data []byte) (map[string]map[string]struct{}, [][]string, error) {
+func (d Runner) ParseInputs(data []byte) (map[string]map[string]struct{}, [][]string, error) {
 
 	pageOrdering := make(map[string]map[string]struct{})
 
@@ -44,7 +44,7 @@ func (d Day5) ParseInputs(data []byte) (map[string]map[string]struct{}, [][]stri
 	return pageOrdering, updates, nil
 }
 
-func (d Day5) isValidSequence(numbers []string, hash map[string]map[string]struct{}) bool {
+func (d Runner) isValidSequence(numbers []string, hash map[string]map[string]struct{}) bool {
 	seen := make(map[string]struct{})
 	isValid := true
 
@@ -64,7 +64,7 @@ func (d Day5) isValidSequence(numbers []string, hash map[string]map[string]struc
 	return isValid
 }
 
-func (d Day5) Part1(data []byte) (any, error) {
+func (d Runner) Part1(data []byte) (any, error) {
 	var res int
 
 	hash, updates, err := d.ParseInputs(data)
@@ -91,7 +91,7 @@ func (d Day5) Part1(data []byte) (any, error) {
 	return res, nil
 }
 
-func (d Day5) orderSequence(numbers []string, hash map[string]map[string]struct{}) string {
+func (d Runner) orderSequence(numbers []string, hash map[string]map[string]struct{}) string {
 
 	n := len(numbers)
 	for i := 0; i < n-1; i++ {
@@ -107,7 +107,7 @@ func (d Day5) orderSequence(numbers []string, hash map[string]map[string]struct{
 
 }
 
-func (d Day5) Part2(data []byte) (any, error) {
+func (d Runner) Part2(data []byte) (any, error) {
 
 	var res int
 
@@ -138,4 +138,8 @@ func (d Day5) Part2(data []byte) (any, error) {
 	}
 
 	return res, nil
+}
+
+func init() {
+	registry.RegisterChallenge(5, Runner{})
 }

@@ -49,13 +49,20 @@ func TestRunner_Sides(t *testing.T) {
 
 	providers := []SideProvider{
 		{
-			Inputs: []byte("AAAA\nBBCD\nBBCC\nEEEE"),
+			Inputs: []byte("AAAA\nBBCD\nBBCC\nEEEC"),
 			Expected: map[string]int{
 				"A": 4,
 				"B": 4,
 				"C": 8,
 				"D": 4,
 				"E": 4,
+			},
+		},
+		{
+			Inputs: []byte("EEEEE\nEXXXX\nEEEEE\nEXXXX\nEEEEE"),
+			Expected: map[string]int{
+				"E": 12,
+				"X": 4,
 			},
 		},
 	}
@@ -71,12 +78,45 @@ func TestRunner_Sides(t *testing.T) {
 			res, _ := garden.FindRegionArea(plant, visited)
 
 			if res != nil {
-				if garden.ComputeSides(res.Plants) != provider.Expected[string(plant.Value)] {
-					t.Fatalf("Should return %d for letter %s instead %d\n", provider.Expected[string(plant.Value)], string(plant.Value), garden.ComputeSides(res.Plants))
+				expected := garden.ComputeSides(*res)
+				if expected != provider.Expected[string(plant.Value)] {
+					t.Fatalf("Should return %d for letter %s instead %d\n", provider.Expected[string(plant.Value)], string(plant.Value), expected)
 				}
 
 			}
 
+		}
+	}
+}
+
+func TestRunner_Part2(t *testing.T) {
+
+	var runner day12.Runner
+
+	providers := []DataProvider{
+		{
+			Inputs:   []byte("AAAA\nBBCD\nBBCC\nEEEC"),
+			Expected: 80,
+		},
+		{
+			Inputs:   []byte("OOOOO\nOXOXO\nOOOOO\nOXOXO\nOOOOO"),
+			Expected: 436,
+		},
+		{
+			Inputs:   []byte("AAAAAA\nAAABBA\nAAABBA\nABBAAA\nABBAAA\nAAAAAA"),
+			Expected: 368,
+		},
+		{
+			Inputs:   []byte("RRRRIICCFF\nRRRRIICCCF\nVVRRRCCFFF\nVVRCCCJFFF\nVVVVCJJCFE\nVVIVCCJJEE\nVVIIICJJEE\nMIIIIIJJEE\nMIIISIJEEE\nMMMISSJEEE"),
+			Expected: 1206,
+		},
+	}
+
+	for _, provider := range providers {
+		res, _ := runner.Part2(provider.Inputs)
+
+		if res != provider.Expected {
+			t.Fatalf("Should return %d instead %d\n", provider.Expected, res)
 		}
 	}
 }

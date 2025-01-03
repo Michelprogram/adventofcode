@@ -1,10 +1,10 @@
-package aoc2024
+package day4
 
 import (
 	"bytes"
-	"strings"
-
+	"github.com/michelprogram/adventofcode/registry"
 	"github.com/michelprogram/adventofcode/utils"
+	"strings"
 )
 
 type Day4 struct {
@@ -18,14 +18,18 @@ type Day4 struct {
 	Inputs2  [][]byte
 }
 
-var _ utils.Challenge = (*Day4)(nil)
+type Runner struct{}
 
-func (d Day4) ParseInputs(data []byte) []string {
+var _ utils.Challenge = (*Runner)(nil)
+
+func (d Runner) ParseInputs(data []byte) []string {
 
 	return strings.Split(strings.TrimSpace(string(data)), "\n")
 }
 
 func NewDay4(inputs []string) *Day4 {
+
+	//Micro optimisation don't need X
 	return &Day4{
 		Inputs:   inputs,
 		Word:     "MAS",
@@ -37,27 +41,19 @@ func NewDay4(inputs []string) *Day4 {
 	}
 }
 
-func (d Day4) Part1(data []byte) (any, error) {
+func (d Runner) Part1(data []byte) (any, error) {
 
-	d.Inputs = d.ParseInputs(data)
+	day := NewDay4(d.ParseInputs(data))
 
-	//Micro optimisation don't need X
-	d.Word = "MAS"
-	d.Reverse = "SAM"
-	d.MaxY = len(d.Inputs)
-	d.MaxX = len(d.Inputs[0])
-	d.WordSize = len(d.Word)
-	d.Counter = 0
-
-	for y, line := range d.Inputs {
+	for y, line := range day.Inputs {
 		for x, letter := range line {
 			if letter == rune('X') {
-				d.findWord(x, y)
+				day.findWord(x, y)
 			}
 		}
 	}
 
-	return d.Counter, nil
+	return day.Counter, nil
 
 }
 
@@ -193,21 +189,26 @@ func (d Day4) isXMas(x, y int) bool {
 	return true
 }
 
-func (d Day4) Part2(data []byte) (any, error) {
+func (d Runner) Part2(data []byte) (any, error) {
 
 	var res int
 
+	var day Day4
+
 	inputs := bytes.Split(data, []byte("\n"))
 
-	d.Inputs2 = inputs
+	day.Inputs2 = inputs
 
 	for y := 1; y < len(inputs)-2; y++ {
 		for x := 1; x < len(inputs[0])-1; x++ {
-			if inputs[y][x] == byte('A') && d.isXMas(x, y) {
+			if inputs[y][x] == byte('A') && day.isXMas(x, y) {
 				res++
 			}
 		}
 	}
 
 	return res, nil
+}
+func init() {
+	registry.RegisterChallenge(4, Runner{})
 }

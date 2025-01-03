@@ -92,18 +92,15 @@ func IsOutOfBound(x, y, maxX, maxY int) bool {
 	return x < 0 || x >= maxX || y >= maxY || y < 0
 }
 
-func RunAoc(test bool, part, day, year int, aocs map[int]Code) error {
+func RunAoc(part, day, year int, aocs map[int]Code) error {
 
 	var data []byte
 	var err error
 
-	if !test {
+	data, err = fecthDataSet(year, day)
 
-		data, err = fecthDataSet(year, day)
-
-		if err != nil {
-			return fmt.Errorf("Can't fetch data for day %d\n", day)
-		}
+	if err != nil {
+		return fmt.Errorf("Can't fetch data for day %d\n", day)
 	}
 
 	aoc, ok := aocs[year]

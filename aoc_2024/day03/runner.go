@@ -1,23 +1,24 @@
-package aoc2024
+package day3
 
 import (
 	"bytes"
+	"github.com/michelprogram/adventofcode/registry"
 	"github.com/michelprogram/adventofcode/utils"
 	"regexp"
 	"strconv"
 )
 
-type Day3 struct{}
+type Runner struct{}
 
-var _ utils.Challenge = (*Day3)(nil)
+var _ utils.Challenge = (*Runner)(nil)
 
-func (d Day3) ParseInputs(data []byte) string {
+func (d Runner) ParseInputs(data []byte) string {
 
 	return string(bytes.TrimSpace(data))
 
 }
 
-func (d Day3) Part1(data []byte) (any, error) {
+func (d Runner) Part1(data []byte) (any, error) {
 
 	var res int
 
@@ -46,7 +47,7 @@ func (d Day3) Part1(data []byte) (any, error) {
 
 }
 
-func (d Day3) Part2(data []byte) (any, error) {
+func (d Runner) Part2(data []byte) (any, error) {
 	inputs := d.ParseInputs(data)
 
 	regex := regexp.MustCompile(`mul\((\d{1,3}),(\d{1,3})\)`)
@@ -82,4 +83,8 @@ func (d Day3) Part2(data []byte) (any, error) {
 	}
 
 	return res, nil
+}
+
+func init() {
+	registry.RegisterChallenge(3, Runner{})
 }

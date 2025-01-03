@@ -1,14 +1,16 @@
-package aoc2024
+package day8
 
 import (
 	"bytes"
 	"fmt"
-	"log"
-
+	"github.com/michelprogram/adventofcode/registry"
 	"github.com/michelprogram/adventofcode/utils"
+	"log"
 )
 
-type Day8 struct{}
+type Runner struct{}
+
+var _ utils.Challenge = (*Runner)(nil)
 
 type Point struct {
 	X int
@@ -143,16 +145,14 @@ func (g Map) String() string {
 	return res
 }
 
-var _ utils.Challenge = (*Day8)(nil)
-
-func (d Day8) ParseInputs(data []byte) ([][]byte, error) {
+func (d Runner) ParseInputs(data []byte) ([][]byte, error) {
 
 	inputs := bytes.Split(data, []byte("\n"))
 
 	return inputs[:len(inputs)-1], nil
 }
 
-func (d Day8) Part1(data []byte) (any, error) {
+func (d Runner) Part1(data []byte) (any, error) {
 
 	inputs, _ := d.ParseInputs(data)
 
@@ -165,7 +165,7 @@ func (d Day8) Part1(data []byte) (any, error) {
 	return len(grid.Antinodes), nil
 }
 
-func (d Day8) Part2(data []byte) (any, error) {
+func (d Runner) Part2(data []byte) (any, error) {
 
 	inputs, _ := d.ParseInputs(data)
 
@@ -178,4 +178,8 @@ func (d Day8) Part2(data []byte) (any, error) {
 	log.Println(len(grid.Antinodes), grid.Antinodes)
 
 	return len(grid.Antinodes), nil
+}
+
+func init() {
+	registry.RegisterChallenge(8, Runner{})
 }

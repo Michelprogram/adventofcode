@@ -1,7 +1,9 @@
-package aoc2024
+package day4_test
 
 import (
 	"testing"
+
+	"github.com/michelprogram/adventofcode/aoc_2024/day04"
 )
 
 func TestDay4Horizontal(t *testing.T) {
@@ -12,7 +14,7 @@ func TestDay4Horizontal(t *testing.T) {
 		"MXAMFMSXSA",
 	}
 
-	day := NewDay4(inputs)
+	day := day4.NewDay4(inputs)
 
 	for y, line := range inputs {
 		for x, letter := range line {
@@ -36,7 +38,7 @@ func TestDay4Vertical(t *testing.T) {
 		"MSAMFMSFSX",
 	}
 
-	day := NewDay4(inputs)
+	day := day4.NewDay4(inputs)
 
 	for y, line := range inputs {
 		for x, letter := range line {
@@ -59,7 +61,7 @@ func TestDay4CrossTopLeft(t *testing.T) {
 		"MXMMMMMMXM",
 	}
 
-	day := NewDay4(inputs)
+	day := day4.NewDay4(inputs)
 
 	for y, line := range inputs {
 		for x, letter := range line {
@@ -83,7 +85,7 @@ func TestDay4CrossTopRight(t *testing.T) {
 		"MXMMXMMMXM",
 	}
 
-	day := NewDay4(inputs)
+	day := day4.NewDay4(inputs)
 
 	for y, line := range inputs {
 		for x, letter := range line {
@@ -107,7 +109,7 @@ func TestDay4CrossBotLeft(t *testing.T) {
 		"ASMMMMMSMM",
 	}
 
-	day := NewDay4(inputs)
+	day := day4.NewDay4(inputs)
 
 	for y, line := range inputs {
 		for x, letter := range line {
@@ -131,7 +133,7 @@ func TestDay4CrossBotRight(t *testing.T) {
 		"MXMMMMMSMM",
 	}
 
-	day := NewDay4(inputs)
+	day := day4.NewDay4(inputs)
 
 	for y, line := range inputs {
 		for x, letter := range line {

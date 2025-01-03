@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <script src="wasm_exec.js"></script>
+    <script>
+        const go = new Go();
+        WebAssembly.instantiateStreaming(fetch("json.wasm"), go.importObject).then((result) => {
+            go.run(result.instance);
+        });
+    </script>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            margin: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<button id="dfs" onclick="run()">Start DFS</button>
+<canvas id="canvas"></canvas>
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Configuration
+    const CELL_SIZE = 12;
+    const FONT_SIZE = 10;
+
+    let data = `CIISIIQQVZZZZZZOOOTTTTTTTTTTTTTTTDDJAAAAADDDDDDDDDDVVVVVVVVMMMMMMMMMMHHHHHJJJHHHHHHVVVVVVVVVVVVVVVVVVVNNNNNNNNNNNNNNNNNNOOOOOOOOOOOOOOOOOOOO
+CIIIIIIQVVVZZOOOOOTTTTTTTTTTTTTTDDDDDAGAASDDDDDDDDDDVVVVVVVMMMSMMMMMHHHHHHHJHHHHHHVVVVLLLVVVVVVVVVVVVVYNNNNNNNNNNNNNNNNNNOOOOOOOOOOOOOYYYYYO`;  // Truncated for example
+
+    function initCanvas(data) {
+        const lines = data.split('\n');
+        const width = lines[0].length * CELL_SIZE;
+        const height = lines.length * CELL_SIZE;
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // Set text properties
+        ctx.font = `${FONT_SIZE}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+    }
+
+    function drawGrid(data) {
+        const lines = data.split('\n');
+
+        lines.forEach((line, y) => {
+            [...line].forEach((letter, x) => {
+                const xPos = x * CELL_SIZE;
+                const yPos = y * CELL_SIZE;
+
+                // Draw cell background
+                ctx.fillStyle = getColorForLetter(letter);
+                ctx.fillRect(xPos, yPos, CELL_SIZE, CELL_SIZE);
+
+                // Draw letter
+                ctx.fillStyle = '#000';
+                ctx.fillText(
+                    letter,
+                    xPos + CELL_SIZE/2,
+                    yPos + CELL_SIZE/2
+                );
+
+                // Draw cell border
+                ctx.strokeStyle = '#ccc';
+                ctx.strokeRect(xPos, yPos, CELL_SIZE, CELL_SIZE);
+            });
+        });
+    }
+
+    function getColorForLetter(letter) {
+        // Simple hash function to generate consistent colors
+        const hue = ((letter.charCodeAt(0) * 7) % 360);
+        return `hsl(${hue}, 70%, 85%)`;
+    }
+
+    // Initialize and draw
+    const fullData = document.querySelector("#data")?.textContent || data;
+    initCanvas(fullData);
+    drawGrid(fullData);
+
+    // Expose run function for DFS
+    window.run = function() {
+        // Your DFS implementation here
+        if (typeof dfs === 'function') {
+            dfs(fullData);
+        }
+    };
+</script>
+</body>
+</html>

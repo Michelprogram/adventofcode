@@ -1,17 +1,17 @@
-package aoc2024
+package day7
 
 import (
 	"bytes"
-	"strconv"
-
+	"github.com/michelprogram/adventofcode/registry"
 	"github.com/michelprogram/adventofcode/utils"
+	"strconv"
 )
 
-type Day7 struct{}
+type Runner struct{}
 
-var _ utils.Challenge = (*Day7)(nil)
+var _ utils.Challenge = (*Runner)(nil)
 
-func (d Day7) ParseInputs(data []byte) (map[int][]int, error) {
+func (d Runner) ParseInputs(data []byte) (map[int][]int, error) {
 
 	res := make(map[int][]int)
 
@@ -51,7 +51,7 @@ func (d Day7) ParseInputs(data []byte) (map[int][]int, error) {
 
 }
 
-func (d Day7) generateCombinations(numbers []int, index int, current []string, results *[][]string) {
+func (d Runner) generateCombinations(numbers []int, index int, current []string, results *[][]string) {
 
 	if index >= len(numbers)-1 {
 		*results = append(*results, append([]string{}, current...))
@@ -68,7 +68,7 @@ func (d Day7) generateCombinations(numbers []int, index int, current []string, r
 	d.generateCombinations(numbers, index+1, append(current, "||"), results)
 }
 
-func (d Day7) isEquationResolvable(expected int, numbers []int, possibilities [][]string) bool {
+func (d Runner) isEquationResolvable(expected int, numbers []int, possibilities [][]string) bool {
 
 	for _, possibility := range possibilities {
 
@@ -92,7 +92,7 @@ func (d Day7) isEquationResolvable(expected int, numbers []int, possibilities []
 
 }
 
-func (d Day7) Part1(data []byte) (any, error) {
+func (d Runner) Part1(data []byte) (any, error) {
 
 	var res int
 
@@ -117,7 +117,7 @@ func (d Day7) Part1(data []byte) (any, error) {
 	return res, nil
 }
 
-func (d Day7) isEquationResolvable2(expected int, numbers []int, possibilities [][]string) bool {
+func (d Runner) isEquationResolvable2(expected int, numbers []int, possibilities [][]string) bool {
 
 	for _, possibility := range possibilities {
 		res := numbers[0]
@@ -141,7 +141,7 @@ func (d Day7) isEquationResolvable2(expected int, numbers []int, possibilities [
 
 }
 
-func (d Day7) Part2(data []byte) (any, error) {
+func (d Runner) Part2(data []byte) (any, error) {
 
 	var res int
 
@@ -166,4 +166,8 @@ func (d Day7) Part2(data []byte) (any, error) {
 	}
 
 	return res, nil
+}
+
+func init() {
+	registry.RegisterChallenge(7, Runner{})
 }

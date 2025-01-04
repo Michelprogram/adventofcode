@@ -15,6 +15,8 @@ import (
 	_ "github.com/michelprogram/adventofcode/aoc_2024/day10"
 	_ "github.com/michelprogram/adventofcode/aoc_2024/day11"
 	_ "github.com/michelprogram/adventofcode/aoc_2024/day12"
+	_ "github.com/michelprogram/adventofcode/aoc_2024/day13"
+	_ "github.com/michelprogram/adventofcode/aoc_2024/day14"
 	"github.com/michelprogram/adventofcode/registry"
 	"github.com/michelprogram/adventofcode/utils"
 )
